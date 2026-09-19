@@ -1,0 +1,46 @@
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-25_05"
+packages = ["freetype", "glibcLocales", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libGL", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "swig", "tcl", "tk", "xcbuild", "zlib"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 180000
+
+[deployment]
+deploymentTarget = "cloudrun"
+
+[deployment.run]
+args = ["sh", "-c", "/nix/store/s4ckxp77ljlikarkka88ba7qr5mlka97-python3-wrapper/bin/python3 $file"]
+
+[deployment.run.env]
+file = "main.py"
